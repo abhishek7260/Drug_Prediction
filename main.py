@@ -1,8 +1,22 @@
 import pickle
 import streamlit as st
+import sklearn
+import numpy as np
+
+# Check scikit-learn version
+sklearn_version = sklearn.__version__
+
+# Display scikit-learn version
+st.write(f"Using scikit-learn version: {sklearn_version}")
 
 # Load the saved model
-Drug_model = pickle.load(open('model.pkl', 'rb'))
+try:
+    with open('model.pkl', 'rb') as file:
+        Drug_model = pickle.load(file)
+except FileNotFoundError:
+    st.error("Model file 'model.pkl' not found.")
+except Exception as e:
+    st.error(f"Error loading model: {e}")
 
 # Page title
 st.title('Drug Prediction using ML')
@@ -42,8 +56,7 @@ if st.button('Predict Drug'):
         bp_numeric = bp_mapping[BP]
         cholesterol_numeric = cholesterol_mapping[Cholesterol]
         
-        input_data = [[float(Age), sex_numeric, bp_numeric, cholesterol_numeric,
-                       float(Na_to_K)]]
+        input_data = np.array([[float(Age), sex_numeric, bp_numeric, cholesterol_numeric, float(Na_to_K)]])
         
         # Predict drug
         Drug_prediction = Drug_model.predict(input_data)
